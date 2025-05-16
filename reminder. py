@@ -1,0 +1,79 @@
+from win10toast import ToastNotifier
+from datetime import datetime
+import time
+
+# Initialize the notifier
+notifier = ToastNotifier()
+
+# Function to get the task and reminder time from the user
+def get_user_input():
+    """
+    Prompts the user to enter the task and desired reminder time.
+    Supports both 24-hour and 12-hour formats based on user choice.
+    Returns the task and reminder datetime object.
+    """
+    task = input("Enter your task description: ")
+
+    # Choose time format
+    print("\nChoose time format:")
+    print("1. 24-hour format (e.g., 14:30)")
+    print("2. 12-hour format with AM/PM (e.g., 02:30 PM)")
+    format_choice = input("Enter your choice (1 or 2): ")
+
+    while format_choice not in ['1', '2']:
+        format_choice = input("Invalid input. Enter 1 or 2: ")
+
+    if format_choice == '1':
+        time_format = "%H:%M"
+    else:
+        time_format = "%I:%M %p"
+
+    # Get the reminder time
+    while True:
+        user_time = input(f"\nEnter reminder time ({'24-hour' if format_choice == '1' else '12-hour with AM/PM'}): ")
+        try:
+            # Combine today's date with the input time
+            reminder_time = datetime.strptime(user_time, time_format)
+            now = datetime.now()
+            reminder_time = reminder_time.replace(year=now.year, month=now.month, day=now.day)
+
+            # If the reminder time is earlier than now, assume it's for tomorrow
+            if reminder_time <= now:
+                reminder_time = reminder_time.replace(day=now.day + 1)
+
+            return task, reminder_time
+        except ValueError:
+            print("Invalid time format. Try again.")
+
+# Function to wait until the reminder time
+def wait_for_reminder(reminder_time):
+    """
+    Sleeps until the reminder time is reached.
+    """
+    while True:
+        now = datetime.now()
+        if now >= reminder_time:
+            break
+        time.sleep(10)  # Sleep in 10-second chunks to avoid busy-waiting
+
+# Function to show desktop notification
+def show_notification(task):
+    """
+    Sends a Windows desktop notification with the task description.
+    """
+    notifier.show_toast("Task Reminder", task, duration=10, threaded=True)
+
+# Main controller function
+def main():
+    """
+    Main driver function to handle the complete reminder process.
+    """
+    task, reminder_time = get_user_input()
+    print(f"\nReminder set for: {reminder_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    wait_for_reminder(reminder_time)
+    show_notification(task)
+    print("Notification sent!")
+
+# Entry point
+if __name__ == "__main__":
+    main()
