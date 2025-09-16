@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microplastic Detection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            line-height: 1.4;
+        }
+
+        .header {
+            border: 2px solid #555;
+            background-color: #2a2a2a;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 300px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .box {
+            border: 2px solid #555;
+            background-color: #2a2a2a;
+            padding: 15px;
+            position: relative;
+        }
+
+        .box-title {
+            background-color: #333;
+            color: #00ff88;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            position: absolute;
+            top: -2px;
+            left: 10px;
+            border: 2px solid #555;
+        }
+
+        .sensor-control {
+            min-height: 200px;
+        }
+
+        .frame-display {
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .frame-viewer {
+            flex: 1;
+            background-color: #000;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            position: relative;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .chatbot-panel {
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            padding: 10px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 5px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            background-color: #333;
+            border: 1px solid #555;
+            color: #e0e0e0;
+            padding: 8px;
+            font-family: inherit;
+            font-size: 12px;
+        }
+
+        .chat-input button {
+            background-color: #00ff88;
+            color: #1e1e1e;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .chat-input button:hover {
+            background-color: #00cc70;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .control-row label {
+            margin-right: 10px;
+            font-size: 12px;
+            color: #ccc;
+            min-width: 80px;
+        }
+
+        .control-row select, .control-row input {
+            background-color: #333;
+            border: 1px solid #555;
+            color: #e0e0e0;
+            padding: 5px;
+            font-family: inherit;
+            font-size: 12px;
+        }
+
+        .icon {
+            font-size: 16px;
+            margin-right: 8px;
+            color: #00ff88;
+        }
+
+        .status-display {
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .status-value {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .water-quality-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .quality-box {
+            border: 2px solid #555;
+            background-color: #2a2a2a;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .quality-value {
+            font-size: 24px;
+            color: #00ff88;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .quality-unit {
+            font-size: 10px;
+            color: #888;
+        }
+
+        .location-panel {
+            border: 2px solid #555;
+            background-color: #2a2a2a;
+            padding: 15px;
+            position: relative;
+        }
+
+        .location-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .location-input {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .location-input label {
+            font-size: 10px;
+            color: #ccc;
+            margin-bottom: 5px;
+        }
+
+        .location-input input, .location-input select {
+            background-color: #333;
+            border: 1px solid #555;
+            color: #e0e0e0;
+            padding: 8px;
+            font-family: inherit;
+            font-size: 12px;
+        }
+
+        .data-table {
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            margin-top: 15px;
+        }
+
+        .table-header {
+            background-color: #333;
+            padding: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #00ff88;
+            border-bottom: 1px solid #444;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 6px 8px;
+            font-size: 11px;
+            border-bottom: 1px solid #333;
+        }
+
+        .reset-btn {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: bold;
+            float: right;
+        }
+
+        .reset-btn:hover {
+            background-color: #cc3333;
+        }
+
+        .expandable-section {
+            border: 1px solid #444;
+            margin-top: 20px;
+        }
+
+        .expand-header {
+            background-color: #333;
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .expand-content {
+            padding: 15px;
+            display: none;
+            background-color: #2a2a2a;
+        }
+
+        .expand-content.open {
+            display: block;
+        }
+
+        .message {
+            margin-bottom: 8px;
+            padding: 4px;
+        }
+
+        .message.user {
+            color: #88ccff;
+        }
+
+        .message.bot {
+            color: #ffaa88;
+        }
+
+        .particle-count {
+            font-size: 18px;
+            color: #ff8800;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>■ MICROPLASTIC DETECTION SYSTEM v1.2</h1>
+        <p>Optical Sensor Array | Real-time Water Quality Monitor</p>
+    </div>
+
+    <div class="main-grid">
+        <div class="box sensor-control">
+            <div class="box-title">📡 SENSOR CONTROL</div>
+            
+            <div class="control-row">
+                <label>Frame Rate:</label>
+                <select id="frameRate" onchange="updateFrameRate()">
+                    <option value="1000">1000 FPS</option>
+                    <option value="2000" selected>2000 FPS</option>
+                    <option value="4000">4000 FPS</option>
+                    <option value="6000">6000 FPS</option>
+                </select>
+            </div>
+
+            <div class="control-row">
+                <label>Threshold:</label>
+                <input type="range" id="threshold" min="1" max="10" value="5" onchange="updateThreshold()">
+                <span id="thresholdValue">5</span>
+            </div>
+
+            <div class="control-row">
+                <label>CNN Model:</label>
+                <select id="cnnModel">
+                    <option value="basic">Basic Detection</option>
+                    <option value="advanced" selected>Advanced CNN</option>
+                    <option value="custom">Custom Model</option>
+                </select>
+            </div>
+
+            <div class="status-display">
+                <div class="status-row">
+                    <span>⚡ Power Status:</span>
+                    <span class="status-value">ONLINE</span>
+                </div>
+                <div class="status-row">
+                    <span>📷 Sensor Status:</span>
+                    <span class="status-value" style="color: #ff6666;">OFFLINE</span>
+                </div>
+                <div class="status-row">
+                    <span>🔍 Detection Mode:</span>
+                    <span class="status-value" style="color: #ffaa44;">STANDBY</span>
+                </div>
+            </div>
+
+            <div class="particle-count">
+                Particles Detected: <span id="particleCount">--</span>
+            </div>
+        </div>
+
+        <div class="box frame-display">
+            <div class="box-title">🖼️ LIVE FRAME CAPTURE</div>
+            
+            <div class="frame-viewer">
+                <div style="text-align: center;">
+                    <div style="font-size: 12px; color: #888; margin-bottom: 8px;">● SENSOR STATUS</div>
+                    <div style="font-size: 14px; color: #ff6666;">CAMERA MODULE OFFLINE</div>
+                    <div style="font-size: 10px; color: #666; margin-top: 8px;">Awaiting hardware connection</div>
+                </div>
+                <div style="position: absolute; bottom: 5px; right: 5px; font-size: 10px; color: #333;">
+                    No Signal
+                </div>
+            </div>
+
+            <div style="margin-top: 10px; display: flex; justify-content: space-between; font-size: 11px;">
+                <span>Frame: <span id="frameCount">--</span></span>
+                <span>FPS: <span id="currentFPS">--</span></span>
+                <span>Active Pixels: <span id="activePixels">--</span></span>
+            </div>
+        </div>
+
+        <div class="box chatbot-panel">
+            <div class="box-title">💬 SYSTEM ASSISTANT</div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">System initialized. Ask me about detection parameters, water quality metrics, or troubleshooting.</div>
+            </div>
+
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Ask a question..." onkeypress="handleChatKeyPress(event)">
+                <button onclick="sendMessage()">SEND</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="water-quality-grid">
+        <div class="quality-box">
+            <div class="box-title">🧪 pH LEVEL</div>
+            <div class="quality-value" id="phValue">7.2</div>
+            <div class="quality-unit">pH units</div>
+            <div style="font-size: 10px; margin-top: 5px; color: #ccc;">NORMAL</div>
+        </div>
+
+        <div class="quality-box">
+            <div class="box-title">🌿 ALGAE LEVEL</div>
+            <div class="quality-value" id="algaeValue">12.4</div>
+            <div class="quality-unit">μg/L chlorophyll</div>
+            <div style="font-size: 10px; margin-top: 5px; color: #ccc;">LOW</div>
+        </div>
+
+        <div class="quality-box">
+            <div class="box-title">💨 O₂ LEVEL</div>
+            <div class="quality-value" id="o2Value">8.6</div>
+            <div class="quality-unit">mg/L dissolved</div>
+            <div style="font-size: 10px; margin-top: 5px; color: #ccc;">GOOD</div>
+        </div>
+
+        <div class="quality-box">
+            <div class="box-title">🌊 TURBIDITY</div>
+            <div class="quality-value" id="turbidityValue">2.1</div>
+            <div class="quality-unit">NTU</div>
+            <div style="font-size: 10px; margin-top: 5px; color: #ccc;">CLEAR</div>
+        </div>
+    </div>
+
+    <div class="location-panel">
+        <div class="box-title">📍 SAMPLE LOCATION & DATA</div>
+        
+        <div class="location-controls">
+            <div class="location-input">
+                <label>LOCATION NAME:</label>
+                <input type="text" id="locationName" placeholder="e.g., River Delta Point A">
+            </div>
+            
+            <div class="location-input">
+                <label>WATER SOURCE:</label>
+                <select id="waterSource">
+                    <option value="river">River</option>
+                    <option value="lake">Lake</option>
+                    <option value="ocean">Ocean</option>
+                    <option value="pond">Pond</option>
+                    <option value="tap">Tap Water</option>
+                    <option value="well">Well Water</option>
+                </select>
+            </div>
+
+            <div class="location-input">
+                <label>COORDINATES:</label>
+                <input type="text" id="coordinates" placeholder="Lat, Lng (Auto-detect)">
+            </div>
+        </div>
+
+        <button onclick="collectSample()" style="background-color: #00ff88; color: #1e1e1e; border: none; padding: 8px 15px; font-family: inherit; font-size: 12px; font-weight: bold; cursor: pointer;">📊 COLLECT SAMPLE</button>
+        <button class="reset-btn" onclick="resetConfiguration()">🔄 RESET CONFIG</button>
+
+        <div class="data-table">
+            <div class="table-header">RECENT SAMPLE DATA</div>
+            <div class="table-row" style="font-weight: bold; color: #00ff88;">
+                <div>TIME</div>
+                <div>LOCATION</div>
+                <div>SOURCE</div>
+                <div>PARTICLES</div>
+                <div>pH</div>
+            </div>
+            <div id="sampleData">
+                <div class="table-row">
+                    <div style="color: #666;">No samples collected yet</div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="expandable-section">
+        <div class="expand-header" onclick="toggleSection('advancedMetrics')">
+            🔬 ADVANCED WATER QUALITY METRICS
+            <span id="advancedMetrics-arrow">▼</span>
+        </div>
+        <div class="expand-content" id="advancedMetrics-content">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                <div>
+                    <strong>🧂 Salinity:</strong> <span style="color: #00ff88;">34.2 ppt</span><br>
+                    <small>Practical Salinity Units</small>
+                </div>
+                <div>
+                    <strong>🌡️ Temperature:</strong> <span style="color: #00ff88;">22.4°C</span><br>
+                    <small>Water temperature</small>
+                </div>
+                <div>
+                    <strong>⚡ Conductivity:</strong> <span style="color: #00ff88;">1.24 mS/cm</span><br>
+                    <small>Electrical conductivity</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="expandable-section">
+        <div class="expand-header" onclick="toggleSection('systemDiagnostics')">
+            🔧 SYSTEM DIAGNOSTICS & CALIBRATION
+            <span id="systemDiagnostics-arrow">▼</span>
+        </div>
+        <div class="expand-content" id="systemDiagnostics-content">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <strong>Photodiode Status:</strong> <span style="color: #00ff88;">CALIBRATED</span><br>
+                    <strong>Last Calibration:</strong> 2024-03-15 14:30<br>
+                    <strong>Frame Buffer:</strong> 85% utilized<br>
+                </div>
+                <div>
+                    <strong>MCU Temperature:</strong> <span style="color: #00ff88;">42.1°C</span><br>
+                    <strong>Power Draw:</strong> 145mA @ 3.3V<br>
+                    <strong>SD Card:</strong> 2.1GB free<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let frameCount = 0;
+        let particleCount = 0;
+        let sampleHistory = [];
+
+        // Initialize frame grid (disabled)
+        function initializeFrameGrid() {
+            // Optical sensor module currently disconnected
+            console.log("Optical sensor initialization pending...");
+        }
+
+        // Frame updates disabled - hardware not connected
+        function updateFrame() {
+            // No frame data available - sensor offline
+            // Particle detection suspended until hardware connection
+        }
+
+        // Chat functionality
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const messages = document.getElementById('chatMessages');
+            
+            if (input.value.trim()) {
+                // Add user message
+                const userMsg = document.createElement('div');
+                userMsg.className = 'message user';
+                userMsg.textContent = '> ' + input.value;
+                messages.appendChild(userMsg);
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'message bot';
+                    botMsg.textContent = getBotResponse(input.value.toLowerCase());
+                    messages.appendChild(botMsg);
+                    messages.scrollTop = messages.scrollHeight;
+                }, 500);
+                
+                input.value = '';
+                messages.scrollTop = messages.scrollHeight;
+            }
+        }
+
+        function getBotResponse(question) {
+            if (question.includes('particle') || question.includes('detection')) {
+                return 'Current detection uses CNN model with 95% accuracy. Particles >10μm are detected reliably.';
+            } else if (question.includes('calibrat')) {
+                return 'System was last calibrated on 2024-03-15. Photodiode baseline is stable.';
+            } else if (question.includes('error') || question.includes('problem')) {
+                return 'Check sensor connections and ensure water flow is consistent. Frame rate may need adjustment.';
+            } else if (question.includes('ph') || question.includes('water quality')) {
+                return 'pH is within normal range. All water quality sensors are functioning properly.';
+            } else {
+                return 'System operational. Ask about detection, calibration, water quality, or troubleshooting.';
+            }
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Control functions
+        function updateFrameRate() {
+            const frameRate = document.getElementById('frameRate').value;
+            // Frame rate setting saved - will apply when sensor connects
+            console.log(`Frame rate configured: ${frameRate} FPS`);
+        }
+
+        function updateThreshold() {
+            const threshold = document.getElementById('threshold').value;
+            document.getElementById('thresholdValue').textContent = threshold;
+        }
+
+        function collectSample() {
+            const location = document.getElementById('locationName').value || 'Unknown Location';
+            const source = document.getElementById('waterSource').value;
+            const time = new Date().toLocaleTimeString();
+            const ph = document.getElementById('phValue').textContent;
+            
+            const sample = {
+                time: time,
+                location: location,
+                source: source,
+                particles: particleCount,
+                ph: ph
+            };
+            
+            sampleHistory.unshift(sample);
+            if (sampleHistory.length > 5) sampleHistory.pop();
+            
+            updateSampleTable();
+            
+            // Reset particle count for next sample
+            particleCount = 0;
+            document.getElementById('particleCount').textContent = '0';
+        }
+
+        function updateSampleTable() {
+            const sampleData = document.getElementById('sampleData');
+            sampleData.innerHTML = '';
+            
+            if (sampleHistory.length === 0) {
+                sampleData.innerHTML = '<div class="table-row"><div style="color: #666;">No samples collected yet</div><div></div><div></div><div></div><div></div></div>';
+                return;
+            }
+            
+            sampleHistory.forEach(sample => {
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <div>${sample.time}</div>
+                    <div>${sample.location}</div>
+                    <div>${sample.source}</div>
+                    <div>${sample.particles}</div>
+                    <div>${sample.ph}</div>
+                `;
+                sampleData.appendChild(row);
+            });
+        }
+
+        function resetConfiguration() {
+            if (confirm('Reset all configuration settings?')) {
+                document.getElementById('frameRate').value = '2000';
+                document.getElementById('threshold').value = '5';
+                document.getElementById('thresholdValue').textContent = '5';
+                document.getElementById('locationName').value = '';
+                document.getElementById('coordinates').value = '';
+                particleCount = 0;
+                frameCount = 0;
+                sampleHistory = [];
+                updateSampleTable();
+                document.getElementById('particleCount').textContent = '0';
+                document.getElementById('frameCount').textContent = '0';
+            }
+        }
+
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const arrow = document.getElementById(sectionId + '-arrow');
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('open');
+                arrow.textContent = '▲';
+            }
+        }
+
+        // Simulate water quality updates
+        function updateWaterQuality() {
+            const ph = (6.5 + Math.random() * 2).toFixed(1);
+            const algae = (10 + Math.random() * 20).toFixed(1);
+            const o2 = (7 + Math.random() * 3).toFixed(1);
+            const turbidity = (1 + Math.random() * 5).toFixed(1);
+            
+            document.getElementById('phValue').textContent = ph;
+            document.getElementById('algaeValue').textContent = algae;
+            document.getElementById('o2Value').textContent = o2;
+            document.getElementById('turbidityValue').textContent = turbidity;
+        }
+
+        // Initialize everything
+        initializeFrameGrid();
+        
+        // Start simulations
+        setInterval(updateFrame, 100);
+        setInterval(updateWaterQuality, 5000);
+    </script>
+</body>
+</html>
