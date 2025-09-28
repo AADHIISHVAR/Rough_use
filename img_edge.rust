@@ -1,0 +1,38 @@
+
+use std::env;
+use image::{GrayImage, ImageReader};
+use imageproc::edges::canny;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 1. Get image path from argument
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
+        eprintln!("Usage: {} <image_path>", args[0]);
+        std::process::exit(1);
+    }
+    let input_path = &args[1];
+    println!("Input image path: {}", input_path);
+
+    // 2. Load image and convert to grayscale
+    let dyn_img = ImageReader::open(input_path)?.decode()?;
+    let gray: GrayImage = dyn_img.to_luma8();
+
+    // Get image dimensions
+    let (width, height) = gray.dimensions();
+    println!("Image dimensions: {} × {}", width, height);
+
+    // 3. Save original grayscale image
+    gray.save("original_gray.png")?;
+    println!("Saved original grayscale image as original_gray.png");
+
+    // 4. Apply Canny edge detection
+    // Parameters: low_threshold, high_threshold
+    // Typical values: low=50.0, high=100.0 (adjust as needed)
+    let edge_img = canny(&gray, 50.0, 100.0);
+
+    // 5. Save edge-detected image
+    edge_img.save("edges.png")?;
+    println!("Saved edge-detected image as edges.png");
+
+    Ok(())
+}
